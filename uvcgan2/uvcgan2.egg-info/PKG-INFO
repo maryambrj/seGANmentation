@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: uvcgan2
+Version: 0.0.1
+Summary: UVCGAN2 reference implementation
+Author: The LS4GAN Project Developers
+Author-email: dtorbunov@bnl.gov
+Classifier: Programming Language :: Python :: 3 :: Only
+License-File: LICENSE
