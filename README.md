@@ -1,5 +1,5 @@
 # seGANmentation: Semantic Segmentation via GAN-Based Image-to-Image Translation
-This project leverages state-of-the-art Generative Adversarial Network (GAN) models, originally designed for image-to-image translation, for semantic segmentation tasks. By combining convolutional neural networks (CNNs) with vision transformers, the model generates semantic segmentation labels directly from input images. Initially demonstrated with car images and ground-truth segmentation labels, the model is versatile and can be applied to other datasets. This approach aims to reduce manual labeling efforts and enhance segmentation model performance through augmented data.
+This project leverages state-of-the-art Generative Adversarial Network (GAN) models for semantic segmentation tasks. Initially demonstrated with car images, the model is versatile and can be applied to other datasets. When used within a pipeline tailored for synthetic image generation in segmentation tasks, this approach aims to reduce manual labeling efforts and enhance segmentation model performance through augmented data.
 
 seGANmentation adapts [uvcgan2](https://github.com/LS4GAN/uvcgan2) for direct image-to-label translation.
 
@@ -27,25 +27,25 @@ To install the uvcgan2 package, simply run the following command:
 python3 setup.py develop --user
 ```
 
-## Pre-Training the Model
+## Pre-Training the Generator
 
-To pretrain the model, execute:
+To pretrain the generator, execute:
 ```
 python3 scripts/Carvana/pretrain_generator.py
 ```
-When the pretraining is finished, the pre-trained model will be saved in the `outdir/Carvana_resized/` directory
+When the pretraining is finished, the pre-trained model will be saved in the `outdir/Carvana_resized/` directory.
 
-## Training the Model
+## Training for Image-to-Label Translation
 
-To train the model, execute:
+To train the I2L translation, execute:
 ```
 python3 scripts/Carvana/train_translation.py
 ```
-When the pretraining is finished, the trained model will be saved in the `outdir/Carvana_resized/I2L` directory
+When the training is finished, the trained model will be saved in the `outdir/Carvana_resized/I2L` directory.
 
 ## Translating Images 
 
-To translate images to segmentation masks and see the results, run:
+After the training, to translate images to segmentation masks and see the results using model checkpoints saved in `outdir`, run:
 ```
 python3 scripts/translate_images.py <PATH_TO_TRAINED_MODEL_in_outdir> --split val 
 ```
