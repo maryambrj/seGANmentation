@@ -49,3 +49,9 @@ After the training, to translate images to segmentation masks and see the result
 ```
 python3 scripts/translate_images.py <PATH_TO_TRAINED_MODEL_in_outdir> --split val 
 ```
+## Evaluating the Segmentation
+
+After translating the images, the script below evaluates the segmentation performance of a model by comparing its predicted images with ground truth images saved in `outdir` using three metrics: Dice Coefficient, Intersection over Union (IoU), and accuracy:
+```
+python3 scripts/evaluate_segmentation.py
+```
