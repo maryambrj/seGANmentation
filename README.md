@@ -27,6 +27,29 @@ To install the uvcgan2 package, simply run the following command:
 python3 setup.py develop --user
 ```
 
+## Dataset Preperation:
+
+### Download the Dataset
+* The Carvana dataset is available on Kaggle at [Carvana Image Masking Challenge](https://www.kaggle.com/competitions/carvana-image-masking-challenge/data).
+* Download the `train.zip` file from the competition data section.
+
+### Organize the Data:
+* Create a folder named `data` in the `uvcgan2` project directory.
+* Within the `data` folder, create another folder named `Carvana_resized`.
+* Extract the contents of `train.zip` into the `Carvana_resized` folder. This will create a train folder containing the training images.
+
+### Directory Structure:
+
+After extraction, ensure that your directory structure looks like this:
+```
+uvcgan2/
+│
+├── data/
+│   └── Carvana_resized/
+│       └── train/
+│           ├── 00087a6bd4dc_01.jpg
+│           ├── ...
+```
 ## Pre-Training the Generator
 
 To pretrain the generator, execute:
