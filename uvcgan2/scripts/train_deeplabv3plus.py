@@ -87,7 +87,25 @@ class CarvanaSegDataset(Dataset):
         fname = self.filenames[idx]
 
         image = Image.open(os.path.join(self.img_dir, fname)).convert('RGB')
-        mask  = Image.open(os.path.join(self.mask_dir, fname)).convert('L')
+        
+        # Deduce mask filename for Carvana (e.g. 6d375..._16.jpg.png -> 6d375..._16_mask.gif.png)
+        mask_fname = fname
+        if fname.endswith('.jpg.png'):
+            base = fname[:-8]
+            candidates = [base + '_mask.gif.png', base + '_mask.png', base + '_mask.gif']
+            for cand in candidates:
+                if os.path.exists(os.path.join(self.mask_dir, cand)):
+                    mask_fname = cand
+                    break
+        elif fname.endswith('.jpg'):
+            base = fname[:-4]
+            candidates = [base + '_mask.gif', base + '_mask.png']
+            for cand in candidates:
+                if os.path.exists(os.path.join(self.mask_dir, cand)):
+                    mask_fname = cand
+                    break
+
+        mask  = Image.open(os.path.join(self.mask_dir, mask_fname)).convert('L')
 
         # Random horizontal flip (same coin for image & mask)
         if self.augment and torch.rand(1).item() > 0.5:
