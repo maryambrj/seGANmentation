@@ -2,7 +2,7 @@
 
 This project explores the use of state-of-the-art Generative Adversarial Networks (GANs) for semantic segmentation tasks. By formulating segmentation as an image-to-image translation problem (Image-to-Label), this approach aims to leverage generative priors and adversarial training to improve segmentation performance, especially in scenarios where traditional supervised methods might struggle or require extensive manual labeling.
 
-The core implementation adapts [uvcgan2](https://github.com/LS4GAN/uvcgan2) for direct image-to-label translation, demonstrated initially on the Carvana car masking dataset. Additionally, standard segmentation baselines (U-Net and DeepLabV3+) are provided for direct comparison.
+The core implementation adapts [uvcgan2](https://github.com/LS4GAN/uvcgan2) for direct image-to-label translation, demonstrated initially on the Carvana car masking dataset. Additionally, standard segmentation baselines (U-Net, DeepLabV3+, LinkNet, and SegFormer) are provided for direct comparison.
 
 ## Quick Start & Environment Setup
 
@@ -56,7 +56,7 @@ python3 scripts/translate_images.py <PATH_TO_TRAINED_MODEL_in_outdir> --split va
 python3 scripts/evaluate_segmentation.py
 ```
 
-## 2. Standard Baselines (U-Net & DeepLabV3+)
+## 2. Standard Baselines (U-Net, DeepLabV3+, LinkNet, & SegFormer)
 
 To provide a robust comparison against the GAN approach, we include standard supervised segmentation baselines. These scripts use the same dataset structure, evaluation metrics, and general hyperparameters.
 
@@ -69,6 +69,36 @@ Train a DeepLabV3+ model using `segmentation_models_pytorch`:
 python3 scripts/train_deeplabv3plus.py \
     --data-root data/Carvana_resized \
     --outdir outdir/deeplabv3plus \
+    --batch-size 16 \
+    --epochs 10 \
+    --lr 1e-5 \
+    --save-preds
+```
+
+### LinkNet (ResNet-34)
+
+Train a LinkNet model using `segmentation_models_pytorch`:
+
+```bash
+# Requires: pip install segmentation_models_pytorch
+python3 scripts/train_linknet.py \
+    --data-root data/Carvana_resized \
+    --outdir outdir/linknet \
+    --batch-size 16 \
+    --epochs 10 \
+    --lr 1e-5 \
+    --save-preds
+```
+
+### SegFormer (mit-b0)
+
+Train a SegFormer model using the Hugging Face `transformers` library:
+
+```bash
+# Requires: pip install transformers
+python3 scripts/train_segformer.py \
+    --data-root data/Carvana_resized \
+    --outdir outdir/segformer \
     --batch-size 16 \
     --epochs 10 \
     --lr 1e-5 \
