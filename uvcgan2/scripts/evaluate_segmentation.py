@@ -112,11 +112,26 @@ def evaluate_segmentation(gt_folder, est_folder):
         return None, None, None
 
 
-gt_folder = './outdir/Carvana_resized/I2L/7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/real_b/'
-est_folder = './outdir/Carvana_resized/I2L/7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/fake_b/'
+def parse_args():
+    import argparse
+    p = argparse.ArgumentParser(
+        description='Evaluate binary segmentation masks (Dice, IoU, Accuracy)')
+    p.add_argument(
+        '--gt-folder', type=str,
+        default='./outdir/Carvana_resized/I2L/7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/real_b/',
+        help='Directory of ground-truth binary masks')
+    p.add_argument(
+        '--pred-folder', type=str,
+        default='./outdir/Carvana_resized/I2L/7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/fake_b/',
+        help='Directory of predicted binary masks')
+    return p.parse_args()
 
-avg_dice, avg_iou, avg_accuracy = evaluate_segmentation(gt_folder, est_folder)
-print(f"Average Dice Coefficient: {avg_dice}")
-print(f"Average IoU: {avg_iou}")
-print(f"Average Accuracy: {avg_accuracy}")
+
+if __name__ == '__main__':
+    args = parse_args()
+    avg_dice, avg_iou, avg_accuracy = evaluate_segmentation(
+        args.gt_folder, args.pred_folder)
+    print(f"Average Dice Coefficient: {avg_dice}")
+    print(f"Average IoU: {avg_iou}")
+    print(f"Average Accuracy: {avg_accuracy}")
 

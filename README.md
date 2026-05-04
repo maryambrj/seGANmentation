@@ -106,3 +106,48 @@ python3 scripts/train_segformer.py \
 ```
 
 *The scripts output standard logs (`training_log.csv`), model checkpoints, and optionally save predictions to evaluate alongside the GAN results.*
+
+## 3. Evaluation
+
+All models are evaluated using a unified set of metrics. Make sure predictions have been saved (use `--save-preds` for baselines, or run `translate_images.py` for seGANmentation).
+
+### Available Metrics
+
+| Metric | Description |
+|--------|-------------|
+| **Dice** | Sørensen–Dice coefficient (2×intersection / sum of areas) |
+| **IoU** | Intersection over Union (Jaccard index) |
+| **Accuracy** | Pixel-level accuracy |
+| **AP@0.5** | Average Precision at IoU ≥ 0.5 threshold (instance-level connected-component matching) |
+| **FID** | Fréchet Inception Distance for generated masks (InceptionV3 features, common for GANs) |
+
+### Individual Metric Scripts
+
+```bash
+# Dice / IoU / Accuracy
+python3 scripts/evaluate_segmentation.py \
+    --gt-folder <GT_MASK_DIR> \
+    --pred-folder <PRED_MASK_DIR>
+
+# AP@0.5
+python3 scripts/evaluate_ap.py \
+    --gt-folder <GT_MASK_DIR> \
+    --pred-folder <PRED_MASK_DIR>
+
+# FID for masks (requires: pip install torch-fidelity)
+python3 scripts/evaluate_fid_masks.py \
+    --gt-folder <GT_MASK_DIR> \
+    --pred-folder <PRED_MASK_DIR>
+```
+
+### Unified Evaluation (All Models)
+
+Run all metrics across all four models at once:
+
+```bash
+python3 scripts/evaluate_all_models.py \
+    --output-csv evaluation_results.csv
+```
+
+This produces a comparison table and CSV with Dice, IoU, Accuracy, AP@0.5, and FID for each model. Use `--skip-fid` for faster runs without FID, or `--no-gpu` to run on CPU.
+
