@@ -90,6 +90,9 @@ def evaluate_segmentation(gt_folder, est_folder):
             gt_path = os.path.join(gt_folder, gt_file)
             est_path = os.path.join(est_folder, gt_file)
 
+            if not os.path.isfile(gt_path) or not os.path.isfile(est_path):
+                continue
+
             gt_image = load_image(gt_path)
             est_image = load_image(est_path)
 

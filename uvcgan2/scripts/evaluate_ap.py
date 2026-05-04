@@ -166,8 +166,14 @@ def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
             print(f"[WARN] No prediction found for {gt_file}")
             continue
 
-        gt_mask = load_binary_mask(os.path.join(gt_folder, gt_file))
-        pred_mask = load_binary_mask(os.path.join(pred_folder, gt_file))
+        gt_path = os.path.join(gt_folder, gt_file)
+        pred_path = os.path.join(pred_folder, gt_file)
+
+        if not os.path.isfile(gt_path) or not os.path.isfile(pred_path):
+            continue
+
+        gt_mask = load_binary_mask(gt_path)
+        pred_mask = load_binary_mask(pred_path)
 
         gt_instances = extract_instances(gt_mask)
         pred_instances = extract_instances(pred_mask)
