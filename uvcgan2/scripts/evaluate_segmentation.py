@@ -88,7 +88,7 @@ def get_pred_filename(gt_file, pred_files_set):
     return None
 
 def evaluate_segmentation(gt_folder, est_folder):
-    gt_files = sorted(os.listdir(gt_folder))
+    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f))])
     est_files = sorted(os.listdir(est_folder))
 
     est_files_set = set(est_files)
@@ -97,14 +97,16 @@ def evaluate_segmentation(gt_folder, est_folder):
     iou_scores = []
     accuracy_scores = []
 
-    for gt_file in gt_files:
+    for i, gt_file in enumerate(gt_files):
         pred_file = get_pred_filename(gt_file, est_files_set)
+        if pred_file is None:
+            fallback = f"sample_{i}.png"
+            if fallback in est_files_set:
+                pred_file = fallback
+
         if pred_file is not None:
             gt_path = os.path.join(gt_folder, gt_file)
             est_path = os.path.join(est_folder, pred_file)
-
-            if not os.path.isfile(gt_path) or not os.path.isfile(est_path):
-                continue
 
             gt_image = load_image(gt_path)
             est_image = load_image(est_path)

@@ -169,7 +169,7 @@ def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
     stats : dict
         Aggregate TP / FP / FN counts and per-image breakdown.
     """
-    gt_files = sorted(os.listdir(gt_folder))
+    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f))])
     pred_files_set = set(os.listdir(pred_folder))
 
     # Accumulate over all images
@@ -178,17 +178,19 @@ def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
     all_fn = 0
     per_image = []
 
-    for gt_file in gt_files:
+    for i, gt_file in enumerate(gt_files):
         pred_file = get_pred_filename(gt_file, pred_files_set)
+        if pred_file is None:
+            fallback = f"sample_{i}.png"
+            if fallback in pred_files_set:
+                pred_file = fallback
+
         if pred_file is None:
             print(f"[WARN] No prediction found for {gt_file}")
             continue
 
         gt_path = os.path.join(gt_folder, gt_file)
         pred_path = os.path.join(pred_folder, pred_file)
-
-        if not os.path.isfile(gt_path) or not os.path.isfile(pred_path):
-            continue
 
         gt_mask = load_binary_mask(gt_path)
         pred_mask = load_binary_mask(pred_path)
