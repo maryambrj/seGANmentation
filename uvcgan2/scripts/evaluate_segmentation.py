@@ -75,6 +75,23 @@ def accuracy(pred, target):
     #     return avg_dice.item(), avg_iou.item()
     # else:
     #     return None, None
+def get_pred_filename(gt_file, pred_files_set):
+    if gt_file in pred_files_set:
+        return gt_file
+    base = gt_file
+    for suffix in ['_mask.gif.png', '_mask.gif', '_mask.png', '.png', '.jpg']:
+        if base.endswith(suffix):
+            base = base[:-len(suffix)]
+            break
+    candidates = [
+        f"{base}.jpg.png", f"{base}.jpg", f"{base}.png",
+        f"{base}_mask.gif.png", f"{base}_mask.gif", f"{base}_mask.png",
+    ]
+    for cand in candidates:
+        if cand in pred_files_set:
+            return cand
+    return None
+
 def evaluate_segmentation(gt_folder, est_folder):
     gt_files = sorted(os.listdir(gt_folder))
     est_files = sorted(os.listdir(est_folder))
@@ -86,9 +103,10 @@ def evaluate_segmentation(gt_folder, est_folder):
     accuracy_scores = []
 
     for gt_file in gt_files:
-        if gt_file in est_files_set:
+        pred_file = get_pred_filename(gt_file, est_files_set)
+        if pred_file is not None:
             gt_path = os.path.join(gt_folder, gt_file)
-            est_path = os.path.join(est_folder, gt_file)
+            est_path = os.path.join(est_folder, pred_file)
 
             if not os.path.isfile(gt_path) or not os.path.isfile(est_path):
                 continue

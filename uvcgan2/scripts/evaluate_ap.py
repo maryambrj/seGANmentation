@@ -132,6 +132,24 @@ def compute_ap(precisions, recalls):
 # ---------------------------------------------------------------------------
 #  Main evaluation
 # ---------------------------------------------------------------------------
+def get_pred_filename(gt_file, pred_files_set):
+    if gt_file in pred_files_set:
+        return gt_file
+    base = gt_file
+    for suffix in ['_mask.gif.png', '_mask.gif', '_mask.png', '.png', '.jpg']:
+        if base.endswith(suffix):
+            base = base[:-len(suffix)]
+            break
+    candidates = [
+        f"{base}.jpg.png", f"{base}.jpg", f"{base}.png",
+        f"{base}_mask.gif.png", f"{base}_mask.gif", f"{base}_mask.png",
+    ]
+    for cand in candidates:
+        if cand in pred_files_set:
+            return cand
+    return None
+
+
 def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
     """
     Compute AP@{iou_threshold} across all images.
@@ -162,12 +180,13 @@ def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
     per_image = []
 
     for gt_file in gt_files:
-        if gt_file not in pred_files_set:
+        pred_file = get_pred_filename(gt_file, pred_files_set)
+        if pred_file is None:
             print(f"[WARN] No prediction found for {gt_file}")
             continue
 
         gt_path = os.path.join(gt_folder, gt_file)
-        pred_path = os.path.join(pred_folder, gt_file)
+        pred_path = os.path.join(pred_folder, pred_file)
 
         if not os.path.isfile(gt_path) or not os.path.isfile(pred_path):
             continue
