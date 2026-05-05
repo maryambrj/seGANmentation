@@ -5,14 +5,9 @@ import numpy as np
 
 
 def load_image(path):
-    image = Image.open(path)
+    image = Image.open(path).convert('L')
     image = np.array(image)
-
-    # If the image is three-channel, use only the first channel
-    if len(image.shape) == 3 and image.shape[2] == 3:
-        image = image[:, :, 0]
-
-    image = (image > 0).astype(np.uint8)  # Binarize the image
+    image = (image > 127).astype(np.uint8)  # Binarize the image (white=1, black=0)
     return torch.tensor(image, dtype=torch.float32)
 
 

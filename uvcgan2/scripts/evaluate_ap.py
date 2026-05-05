@@ -29,10 +29,9 @@ from scipy import ndimage
 # ---------------------------------------------------------------------------
 def load_binary_mask(path):
     """Load an image and binarise it (foreground = 1, background = 0)."""
-    image = np.array(Image.open(path))
-    if image.ndim == 3:
-        image = image[:, :, 0]
-    return (image > 0).astype(np.uint8)
+    image = Image.open(path).convert('L')
+    image = np.array(image)
+    return (image > 127).astype(np.uint8)
 
 
 # ---------------------------------------------------------------------------
