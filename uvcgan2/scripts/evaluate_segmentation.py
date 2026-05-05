@@ -140,6 +140,9 @@ def parse_args():
         '--pred-folder', type=str,
         default='./outdir/Carvana_resized/I2L/7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/fake_b/',
         help='Directory of predicted binary masks')
+    p.add_argument(
+        '--save-csv', type=str, default=None,
+        help='Optional path to save summary results CSV')
     return p.parse_args()
 
 
@@ -150,4 +153,14 @@ if __name__ == '__main__':
     print(f"Average Dice Coefficient: {avg_dice}")
     print(f"Average IoU: {avg_iou}")
     print(f"Average Accuracy: {avg_accuracy}")
+
+    if args.save_csv:
+        import csv
+        with open(args.save_csv, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Metric', 'Value'])
+            writer.writerow(['Dice', f"{avg_dice:.4f}" if avg_dice else "None"])
+            writer.writerow(['IoU', f"{avg_iou:.4f}" if avg_iou else "None"])
+            writer.writerow(['Accuracy', f"{avg_accuracy:.4f}" if avg_accuracy else "None"])
+        print(f"Summary results saved to: {args.save_csv}")
 

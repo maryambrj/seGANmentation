@@ -127,17 +127,20 @@ All models are evaluated using a unified set of metrics. Make sure predictions h
 # Dice / IoU / Accuracy
 python3 scripts/evaluate_segmentation.py \
     --gt-folder <GT_MASK_DIR> \
-    --pred-folder <PRED_MASK_DIR>
+    --pred-folder <PRED_MASK_DIR> \
+    --save-csv summary_seg.csv
 
 # AP@0.5
 python3 scripts/evaluate_ap.py \
     --gt-folder <GT_MASK_DIR> \
-    --pred-folder <PRED_MASK_DIR>
+    --pred-folder <PRED_MASK_DIR> \
+    --save-csv summary_ap.csv
 
 # FID for masks (requires: pip install torch-fidelity)
 python3 scripts/evaluate_fid_masks.py \
     --gt-folder <GT_MASK_DIR> \
-    --pred-folder <PRED_MASK_DIR>
+    --pred-folder <PRED_MASK_DIR> \
+    --save-csv summary_fid.csv
 ```
 
 ### Unified Evaluation (All Models)

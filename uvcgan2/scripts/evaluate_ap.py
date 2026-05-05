@@ -257,7 +257,7 @@ def parse_args():
     p.add_argument('--iou-threshold', type=float, default=0.5,
                    help='IoU threshold for TP matching (default: 0.5)')
     p.add_argument('--save-csv', type=str, default=None,
-                   help='Optional path to save per-image results CSV')
+                   help='Optional path to save summary results CSV')
     return p.parse_args()
 
 
@@ -284,11 +284,15 @@ def main():
     if args.save_csv:
         import csv
         with open(args.save_csv, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                'file', 'tp', 'fp', 'fn', 'n_gt', 'n_pred'])
-            writer.writeheader()
-            writer.writerows(stats['per_image'])
-        print(f"Per-image results saved to: {args.save_csv}")
+            writer = csv.writer(f)
+            writer.writerow(['Metric', 'Value'])
+            writer.writerow([f'AP@{args.iou_threshold:.2f}', f"{ap:.4f}"])
+            writer.writerow(['Total_TP', stats['total_tp']])
+            writer.writerow(['Total_FP', stats['total_fp']])
+            writer.writerow(['Total_FN', stats['total_fn']])
+            writer.writerow(['GT_instances', stats['total_gt_instances']])
+            writer.writerow(['Images_evaluated', stats['n_images']])
+        print(f"Summary results saved to: {args.save_csv}")
 
 
 if __name__ == '__main__':
