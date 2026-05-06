@@ -37,6 +37,16 @@ def accuracy(pred, target):
     total = pred.numel()
     return correct.float() / total
 
+def precision(pred, target):
+    tp = (pred * target).sum()
+    fp = (pred * (1 - target)).sum()
+    return tp / (tp + fp + 1e-6)
+
+def recall(pred, target):
+    tp = (pred * target).sum()
+    fn = ((1 - pred) * target).sum()
+    return tp / (tp + fn + 1e-6)
+
 
 # def evaluate_segmentation(gt_folder, est_folder):
 #     gt_files = sorted(os.listdir(gt_folder))
@@ -96,6 +106,8 @@ def evaluate_segmentation(gt_folder, est_folder):
     dice_scores = []
     iou_scores = []
     accuracy_scores = []
+    precision_scores = []
+    recall_scores = []
 
     for i, gt_file in enumerate(gt_files):
         pred_file = get_pred_filename(gt_file, est_files_set)
@@ -114,10 +126,14 @@ def evaluate_segmentation(gt_folder, est_folder):
             dice_score = dice_coefficient(est_image, gt_image)
             iou_score = iou(est_image, gt_image)
             acc_score = accuracy(est_image, gt_image)
+            prec_score = precision(est_image, gt_image)
+            rec_score = recall(est_image, gt_image)
 
             dice_scores.append(dice_score)
             iou_scores.append(iou_score)
             accuracy_scores.append(acc_score)
+            precision_scores.append(prec_score)
+            recall_scores.append(rec_score)
         else:
             print(f"No corresponding prediction found for {gt_file}")
 
@@ -125,9 +141,11 @@ def evaluate_segmentation(gt_folder, est_folder):
         avg_dice = sum(dice_scores) / len(dice_scores)
         avg_iou = sum(iou_scores) / len(iou_scores)
         avg_accuracy = sum(accuracy_scores) / len(accuracy_scores)
-        return avg_dice.item(), avg_iou.item(), avg_accuracy.item()
+        avg_precision = sum(precision_scores) / len(precision_scores)
+        avg_recall = sum(recall_scores) / len(recall_scores)
+        return avg_dice.item(), avg_iou.item(), avg_accuracy.item(), avg_precision.item(), avg_recall.item()
     else:
-        return None, None, None
+        return None, None, None, None, None
 
 
 def parse_args():
@@ -150,11 +168,13 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    avg_dice, avg_iou, avg_accuracy = evaluate_segmentation(
+    avg_dice, avg_iou, avg_accuracy, avg_precision, avg_recall = evaluate_segmentation(
         args.gt_folder, args.pred_folder)
     print(f"Average Dice Coefficient: {avg_dice}")
     print(f"Average IoU: {avg_iou}")
     print(f"Average Accuracy: {avg_accuracy}")
+    print(f"Average Precision: {avg_precision}")
+    print(f"Average Recall: {avg_recall}")
 
     if args.save_csv:
         import csv
@@ -164,5 +184,7 @@ if __name__ == '__main__':
             writer.writerow(['Dice', f"{avg_dice:.4f}" if avg_dice else "None"])
             writer.writerow(['IoU', f"{avg_iou:.4f}" if avg_iou else "None"])
             writer.writerow(['Accuracy', f"{avg_accuracy:.4f}" if avg_accuracy else "None"])
+            writer.writerow(['Precision', f"{avg_precision:.4f}" if avg_precision else "None"])
+            writer.writerow(['Recall', f"{avg_recall:.4f}" if avg_recall else "None"])
         print(f"Summary results saved to: {args.save_csv}")
 

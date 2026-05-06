@@ -151,6 +151,24 @@ def accuracy_score(pred, target):
     return correct.float() / total
 
 
+def precision_score(pred, target, eps=1e-6):
+    """Precision over a batch."""
+    pred   = pred.view(-1)
+    target = target.view(-1)
+    tp = (pred * target).sum()
+    fp = (pred * (1 - target)).sum()
+    return (tp + eps) / (tp + fp + eps)
+
+
+def recall_score(pred, target, eps=1e-6):
+    """Recall over a batch."""
+    pred   = pred.view(-1)
+    target = target.view(-1)
+    tp = (pred * target).sum()
+    fn = ((1 - pred) * target).sum()
+    return (tp + eps) / (tp + fn + eps)
+
+
 # ---------------------------------------------------------------------------
 #  Training & Validation loops
 # ---------------------------------------------------------------------------
@@ -160,6 +178,8 @@ def train_one_epoch(model, loader, criterion, optimizer, device, img_size):
     running_dice = 0.0
     running_iou  = 0.0
     running_acc  = 0.0
+    running_prec = 0.0
+    running_rec  = 0.0
     n_batches    = 0
 
     for images, masks, _ in loader:
@@ -186,6 +206,8 @@ def train_one_epoch(model, loader, criterion, optimizer, device, img_size):
             running_dice += dice_coefficient(preds, masks).item()
             running_iou  += iou_score(preds, masks).item()
             running_acc  += accuracy_score(preds, masks).item()
+            running_prec += precision_score(preds, masks).item()
+            running_rec  += recall_score(preds, masks).item()
             n_batches    += 1
 
     return {
@@ -193,6 +215,8 @@ def train_one_epoch(model, loader, criterion, optimizer, device, img_size):
         'dice':     running_dice / n_batches,
         'iou':      running_iou  / n_batches,
         'accuracy': running_acc  / n_batches,
+        'precision': running_prec / n_batches,
+        'recall':   running_rec  / n_batches,
     }
 
 
@@ -203,6 +227,8 @@ def validate(model, loader, criterion, device, img_size, save_dir=None):
     running_dice = 0.0
     running_iou  = 0.0
     running_acc  = 0.0
+    running_prec = 0.0
+    running_rec  = 0.0
     n_batches    = 0
 
     for images, masks, fnames in loader:
@@ -222,6 +248,8 @@ def validate(model, loader, criterion, device, img_size, save_dir=None):
         running_dice += dice_coefficient(preds, masks).item()
         running_iou  += iou_score(preds, masks).item()
         running_acc  += accuracy_score(preds, masks).item()
+        running_prec += precision_score(preds, masks).item()
+        running_rec  += recall_score(preds, masks).item()
         n_batches    += 1
 
         # Optionally save predictions as images (for evaluate_segmentation.py)
@@ -236,6 +264,8 @@ def validate(model, loader, criterion, device, img_size, save_dir=None):
         'dice':     running_dice / n_batches,
         'iou':      running_iou  / n_batches,
         'accuracy': running_acc  / n_batches,
+        'precision': running_prec / n_batches,
+        'recall':   running_rec  / n_batches,
     }
 
 
@@ -310,8 +340,8 @@ def main():
         writer = csv.writer(f)
         writer.writerow([
             'epoch',
-            'train_loss', 'train_dice', 'train_iou', 'train_accuracy',
-            'val_loss',   'val_dice',   'val_iou',   'val_accuracy',
+            'train_loss', 'train_dice', 'train_iou', 'train_accuracy', 'train_precision', 'train_recall',
+            'val_loss',   'val_dice',   'val_iou',   'val_accuracy', 'val_precision', 'val_recall',
             'epoch_time_s',
         ])
 
@@ -337,9 +367,11 @@ def main():
         print(
             f'Epoch {epoch:>3d}/{args.epochs}  |  '
             f'Train Loss {train_metrics["loss"]:.4f}  Dice {train_metrics["dice"]:.4f}  '
-            f'IoU {train_metrics["iou"]:.4f}  Acc {train_metrics["accuracy"]:.4f}  |  '
+            f'IoU {train_metrics["iou"]:.4f}  Acc {train_metrics["accuracy"]:.4f}  '
+            f'Prec {train_metrics["precision"]:.4f}  Rec {train_metrics["recall"]:.4f}  |  '
             f'Val Loss {val_metrics["loss"]:.4f}  Dice {val_metrics["dice"]:.4f}  '
-            f'IoU {val_metrics["iou"]:.4f}  Acc {val_metrics["accuracy"]:.4f}  |  '
+            f'IoU {val_metrics["iou"]:.4f}  Acc {val_metrics["accuracy"]:.4f}  '
+            f'Prec {val_metrics["precision"]:.4f}  Rec {val_metrics["recall"]:.4f}  |  '
             f'{elapsed:.1f}s'
         )
 
@@ -351,10 +383,14 @@ def main():
                 f'{train_metrics["dice"]:.6f}',
                 f'{train_metrics["iou"]:.6f}',
                 f'{train_metrics["accuracy"]:.6f}',
+                f'{train_metrics["precision"]:.6f}',
+                f'{train_metrics["recall"]:.6f}',
                 f'{val_metrics["loss"]:.6f}',
                 f'{val_metrics["dice"]:.6f}',
                 f'{val_metrics["iou"]:.6f}',
                 f'{val_metrics["accuracy"]:.6f}',
+                f'{val_metrics["precision"]:.6f}',
+                f'{val_metrics["recall"]:.6f}',
                 f'{elapsed:.1f}',
             ])
 

@@ -90,17 +90,19 @@ def evaluate_model(name, gt_folder, pred_folder, use_gpu=True):
         print(f"  [SKIP] Pred folder not found: {pred_folder}")
         return None
 
-    # 1. Dice / IoU / Accuracy
-    print("  [1/3] Computing Dice, IoU, Accuracy...")
+    # 1. Dice / IoU / Accuracy / Precision / Recall
+    print("  [1/3] Computing Dice, IoU, Accuracy, Precision, Recall...")
     try:
-        dice, iou, acc = evaluate_segmentation(gt_folder, pred_folder)
+        dice, iou, acc, prec, rec = evaluate_segmentation(gt_folder, pred_folder)
         result['dice'] = dice
         result['iou'] = iou
         result['accuracy'] = acc
-        print(f"    Dice={dice:.4f}  IoU={iou:.4f}  Acc={acc:.4f}")
+        result['precision'] = prec
+        result['recall'] = rec
+        print(f"    Dice={dice:.4f}  IoU={iou:.4f}  Acc={acc:.4f}  Prec={prec:.4f}  Rec={rec:.4f}")
     except Exception as e:
         print(f"    [WARN] Segmentation metrics failed: {e}")
-        result['dice'] = result['iou'] = result['accuracy'] = None
+        result['dice'] = result['iou'] = result['accuracy'] = result['precision'] = result['recall'] = None
 
     # 2. AP@0.5
     print("  [2/3] Computing AP@0.5...")
@@ -132,7 +134,7 @@ def print_comparison_table(results):
     print("  COMPARISON TABLE — All Models")
     print(f"{'='*80}")
 
-    header = f"{'Model':<16} {'Dice':>8} {'IoU':>8} {'Acc':>8} {'AP@0.5':>8} {'FID':>10}"
+    header = f"{'Model':<16} {'Dice':>8} {'IoU':>8} {'Acc':>8} {'Prec':>8} {'Rec':>8} {'AP@0.5':>8} {'FID':>10}"
     print(header)
     print('-' * len(header))
 
@@ -145,6 +147,8 @@ def print_comparison_table(results):
             f"{fmt(r.get('dice')):>8} "
             f"{fmt(r.get('iou')):>8} "
             f"{fmt(r.get('accuracy')):>8} "
+            f"{fmt(r.get('precision')):>8} "
+            f"{fmt(r.get('recall')):>8} "
             f"{fmt(r.get('ap_at_0.5')):>8} "
             f"{fmt(r.get('fid'), 2):>10}"
         )
@@ -157,7 +161,7 @@ def save_results_csv(results, path):
     """Save results to CSV."""
     if not results:
         return
-    fieldnames = ['model', 'dice', 'iou', 'accuracy', 'ap_at_0.5', 'fid']
+    fieldnames = ['model', 'dice', 'iou', 'accuracy', 'precision', 'recall', 'ap_at_0.5', 'fid']
     with open(path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()

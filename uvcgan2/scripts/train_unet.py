@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-DeepLabV3+ baseline for Carvana binary segmentation.
+U-Net baseline for Carvana binary segmentation.
 
-Drop-in comparison against U-Net and seGANmentation.
+Drop-in comparison against LinkNet, DeepLabV3+, and seGANmentation.
 Uses segmentation_models_pytorch with a ResNet-34 backbone.
 
 Expected data layout (same as the seGANmentation project):
@@ -15,7 +15,7 @@ Expected data layout (same as the seGANmentation project):
             masks/
 
 Outputs:
-    outdir/deeplabv3plus/
+    outdir/unet/
         best_model.pth          – best checkpoint (by val Dice)
         training_log.csv        – per-epoch metrics
         predictions/            – saved val predictions for evaluate_segmentation.py
@@ -46,7 +46,8 @@ class CarvanaSegDataset(Dataset):
     Reads from:
         <root>/<split>/images/
         <root>/<split>/masks/
-    Assumes filenames match between the two folders.
+    Image filenames: 0cdf5b5d0ce1_01.jpg.png
+    Mask  filenames: 0cdf5b5d0ce1_01_mask.gif.png
     """
 
     IMG_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp', '.tif', '.tiff'}
@@ -205,6 +206,8 @@ def train_one_epoch(model, loader, criterion, optimizer, device):
         'dice':     running_dice / n_batches,
         'iou':      running_iou  / n_batches,
         'accuracy': running_acc  / n_batches,
+        'precision': running_prec / n_batches,
+        'recall':   running_rec  / n_batches,
     }
 
 
@@ -247,6 +250,8 @@ def validate(model, loader, criterion, device, save_dir=None):
         'dice':     running_dice / n_batches,
         'iou':      running_iou  / n_batches,
         'accuracy': running_acc  / n_batches,
+        'precision': running_prec / n_batches,
+        'recall':   running_rec  / n_batches,
     }
 
 
@@ -255,11 +260,11 @@ def validate(model, loader, criterion, device, save_dir=None):
 # ---------------------------------------------------------------------------
 def parse_args():
     p = argparse.ArgumentParser(
-        description='Train DeepLabV3+ on Carvana (binary segmentation)')
+        description='Train U-Net on Carvana (binary segmentation)')
 
     p.add_argument('--data-root', type=str, default='data/Carvana_resized',
                    help='Root of the Carvana dataset')
-    p.add_argument('--outdir', type=str, default='outdir/deeplabv3plus',
+    p.add_argument('--outdir', type=str, default='outdir/unet',
                    help='Where to save checkpoints and logs')
     p.add_argument('--img-size', type=int, default=256,
                    help='Input image size (square)')
@@ -299,8 +304,8 @@ def main():
 
     print(f'[INFO] Train samples: {len(train_ds)}  |  Val samples: {len(val_ds)}')
 
-    # ---- Model (DeepLabV3+ with ResNet-34 backbone) ----
-    model = smp.DeepLabV3Plus(
+    # ---- Model (U-Net with ResNet-34 backbone) ----
+    model = smp.Unet(
         encoder_name='resnet34',
         encoder_weights='imagenet',
         in_channels=3,
@@ -308,7 +313,7 @@ def main():
         activation=None,        # raw logits → BCEWithLogitsLoss
     )
     model = model.to(device)
-    print(f'[INFO] DeepLabV3+ (resnet34) loaded  –  '
+    print(f'[INFO] U-Net (resnet34) loaded  –  '
           f'{sum(p.numel() for p in model.parameters()):,} params')
 
     # ---- Optimiser & Loss ----
