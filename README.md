@@ -60,6 +60,21 @@ python3 scripts/evaluate_segmentation.py
 
 To provide a robust comparison against the GAN approach, we include standard supervised segmentation baselines. These scripts use the same dataset structure, evaluation metrics, and general hyperparameters.
 
+### U-Net (ResNet-34)
+
+Train a U-Net model using `segmentation_models_pytorch`:
+
+```bash
+# Requires: pip install segmentation_models_pytorch
+python3 scripts/train_unet.py \
+    --data-root data/Carvana_resized \
+    --outdir outdir/unet \
+    --batch-size 16 \
+    --epochs 10 \
+    --lr 1e-5 \
+    --save-preds
+```
+
 ### DeepLabV3+ (ResNet-34)
 
 Train a DeepLabV3+ model using `segmentation_models_pytorch`:
@@ -118,13 +133,15 @@ All models are evaluated using a unified set of metrics. Make sure predictions h
 | **Dice** | Sørensen–Dice coefficient (2×intersection / sum of areas) |
 | **IoU** | Intersection over Union (Jaccard index) |
 | **Accuracy** | Pixel-level accuracy |
+| **Precision** | Positive Predictive Value (TP / (TP + FP)) |
+| **Recall** | True Positive Rate / Sensitivity (TP / (TP + FN)) |
 | **AP@0.5** | Average Precision at IoU ≥ 0.5 threshold (instance-level connected-component matching) |
 | **FID** | Fréchet Inception Distance for generated masks (InceptionV3 features, common for GANs) |
 
 ### Individual Metric Scripts
 
 ```bash
-# Dice / IoU / Accuracy
+# Dice / IoU / Accuracy / Precision / Recall
 python3 scripts/evaluate_segmentation.py \
     --gt-folder <GT_MASK_DIR> \
     --pred-folder <PRED_MASK_DIR> \
@@ -152,5 +169,5 @@ python3 scripts/evaluate_all_models.py \
     --output-csv evaluation_results.csv
 ```
 
-This produces a comparison table and CSV with Dice, IoU, Accuracy, AP@0.5, and FID for each model. Use `--skip-fid` for faster runs without FID, or `--no-gpu` to run on CPU.
+This produces a comparison table and CSV with Dice, IoU, Accuracy, Precision, Recall, AP@0.5, and FID for each model. Use `--skip-fid` for faster runs without FID, or `--no-gpu` to run on CPU.
 
