@@ -7,6 +7,7 @@ Runs Dice, IoU, Accuracy, AP@0.5, and FID across all four model families:
   - DeepLabV3+
   - LinkNet
   - SegFormer
+  - U-Net
 
 Usage:
     python evaluate_all_models.py --data-root data/Carvana_resized
@@ -55,6 +56,10 @@ DEFAULT_MODELS = {
     'SegFormer': {
         'gt_folder': 'data/Carvana_resized/val/masks/',
         'pred_folder': 'outdir/segformer/predictions/',
+    },
+    'U-Net': {
+        'gt_folder': 'data/Carvana_resized/val/masks/',
+        'pred_folder': 'outdir/unet/predictions/',
     },
 }
 

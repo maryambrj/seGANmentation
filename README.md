@@ -49,7 +49,7 @@ python3 scripts/Carvana/train_translation.py
 
 ### Inference & Evaluation
 
-Translate validation images to segmentation masks and evaluate their performance (Accuracy, Dice, IoU):
+Translate validation images to segmentation masks and evaluate their performance (Accuracy, Dice, IoU, Precision, Recall):
 
 ```bash
 python3 scripts/translate_images.py <PATH_TO_TRAINED_MODEL_in_outdir> --split val 
