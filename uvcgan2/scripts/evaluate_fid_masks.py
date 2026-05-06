@@ -29,17 +29,24 @@ except ImportError:
 
 
 def convert_masks_to_rgb(src_folder, dst_folder):
-    """Convert single-channel binary masks to 3-channel RGB images."""
+    """Convert single-channel binary masks to 3-channel RGB images.
+
+    All images are first converted to grayscale ('L') to handle palette-mode
+    GIF masks, then binarised with a > 127 threshold (consistent with
+    evaluate_segmentation.py / evaluate_ap.py).
+    """
     os.makedirs(dst_folder, exist_ok=True)
     exts = {'.png', '.jpg', '.jpeg', '.bmp', '.tif', '.tiff', '.gif'}
     n = 0
     for fname in sorted(os.listdir(src_folder)):
+        if fname.startswith('.'):
+            continue
         if os.path.splitext(fname)[1].lower() not in exts:
             continue
-        img = np.array(Image.open(os.path.join(src_folder, fname)))
-        if img.ndim == 3:
-            img = img[:, :, 0]
-        img = ((img > 0).astype(np.uint8)) * 255
+        # Convert to grayscale first — handles palette ('P'), RGBA, etc.
+        img = np.array(Image.open(os.path.join(src_folder, fname)).convert('L'))
+        # Binarise with the same threshold used in the other eval scripts
+        img = ((img > 127).astype(np.uint8)) * 255
         rgb = np.stack([img] * 3, axis=-1)
         out_name = os.path.splitext(fname)[0] + '.png'
         Image.fromarray(rgb).save(os.path.join(dst_folder, out_name))
