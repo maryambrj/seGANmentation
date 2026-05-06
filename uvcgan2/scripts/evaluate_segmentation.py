@@ -88,8 +88,8 @@ def get_pred_filename(gt_file, pred_files_set):
     return None
 
 def evaluate_segmentation(gt_folder, est_folder):
-    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f))])
-    est_files = sorted(os.listdir(est_folder))
+    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f)) and not f.startswith('.')])
+    est_files = sorted([f for f in os.listdir(est_folder) if not f.startswith('.')])
 
     est_files_set = set(est_files)
 

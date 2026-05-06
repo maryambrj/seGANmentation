@@ -169,7 +169,7 @@ def evaluate_ap(gt_folder, pred_folder, iou_threshold=0.5):
     stats : dict
         Aggregate TP / FP / FN counts and per-image breakdown.
     """
-    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f))])
+    gt_files = sorted([f for f in os.listdir(gt_folder) if os.path.isfile(os.path.join(gt_folder, f)) and not f.startswith('.')])
     pred_files_set = set(os.listdir(pred_folder))
 
     # Accumulate over all images
