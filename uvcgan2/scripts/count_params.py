@@ -55,13 +55,16 @@ def main():
     # seGANmentation Generator
     try:
         from uvcgan2.presets import GEN_PRESETS
+        from uvcgan2.models.generator import select_generator
         # The project uses vit-modnet based on README and train translation default
-        gen_args = GEN_PRESETS['vit-modnet'].copy()
+        gen_args = GEN_PRESETS['uvcgan2']['model_args'].copy()
         
-        # We might need to import construct_generator or similar
-        # If we can't easily instantiate it, we will skip it
-        from uvcgan2.models.generators import construct_generator
-        gen_model = construct_generator(**gen_args)
+        gen_model = select_generator(
+            name='vit-modnet',
+            input_shape=(3, 256, 256),
+            output_shape=(3, 256, 256),
+            **gen_args
+        )
         print(f"seGANmentation (vit-modnet generator): {count_parameters(gen_model):,}")
     except Exception as e:
         print(f"seGANmentation: Could not instantiate generator directly ({e})")

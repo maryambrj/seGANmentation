@@ -34,16 +34,8 @@ from evaluate_ap import evaluate_ap
 # ---------------------------------------------------------------------------
 DEFAULT_MODELS = {
     'seGANmentation': {
-        'gt_folder': (
-            './outdir/Carvana_resized/I2L/'
-            '7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_'
-            '(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/real_b/'
-        ),
-        'pred_folder': (
-            './outdir/Carvana_resized/I2L/'
-            '7-model_m(uvcgan2)_d(basic)_g(vit-modnet)_uvcgan2-bn_'
-            '(False:0.0:5.0:1.0:1e-08)/evals/final/images_eval-val/fake_b/'
-        ),
+        'gt_folder': 'data/Carvana_resized/val/masks/',
+        'pred_folder': 'outdir/seganmentation/predictions/',
     },
     'DeepLabV3+': {
         'gt_folder': 'data/Carvana_resized/val/masks/',
